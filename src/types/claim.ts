@@ -6,6 +6,9 @@ export type FileAttachment = {
   dateAdded: string;
 };
 
+export type ClaimStatus = 'available' | 'under_negotiation' | 'sold';
+export type ContactPreference = 'phone' | 'email' | 'in_person';
+
 export type Claim = {
   id: string;
   region: string;
@@ -18,4 +21,14 @@ export type Claim = {
   dateAdded: string;
   lastUpdated: string;
   attachments: FileAttachment[];
+  // New fields
+  status: ClaimStatus;
+  resourceEstimate?: string;
+  legalDetails?: string;
+  accessibility?: string;
+  environmentalInfo?: string;
+  investmentHighlights?: string;
+  contactPreference: ContactPreference;
+  isFavorite?: boolean;
+  notes?: string;
 };

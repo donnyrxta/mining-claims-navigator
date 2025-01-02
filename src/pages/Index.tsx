@@ -1,22 +1,8 @@
 import React, { useState } from 'react';
-import { Plus, X, Edit2 } from 'lucide-react';
-import FileUpload from '../components/FileUpload';
-import FilePreview from '../components/FilePreview';
-import { FileAttachment } from '../types/claim';
-
-type Claim = {
-  id: string;
-  region: string;
-  type: 'gold' | 'chrome';
-  sellerName: string;
-  sellerPhone: string;
-  potential: 'high' | 'medium' | 'low';
-  estimatedValue: string;
-  description?: string;
-  dateAdded: string;
-  lastUpdated: string;
-  attachments: FileAttachment[];
-};
+import { Claim, ClaimStatus } from '../types/claim';
+import ClaimFilters from '../components/ClaimFilters';
+import ClaimCard from '../components/ClaimCard';
+import { useToast } from "@/components/ui/use-toast";
 
 const initialClaims: Claim[] = [
   {
@@ -30,7 +16,10 @@ const initialClaims: Claim[] = [
     description: 'High potential gold claim with significant historical yields.',
     dateAdded: '2025-01-02',
     lastUpdated: '2025-01-02',
-    attachments: []
+    status: 'available',
+    contactPreference: 'phone',
+    attachments: [],
+    isFavorite: false
   },
   {
     id: 'C1',
@@ -43,7 +32,10 @@ const initialClaims: Claim[] = [
     description: 'Large chrome deposit with established infrastructure.',
     dateAdded: '2025-01-02',
     lastUpdated: '2025-01-02',
-    attachments: []
+    status: 'available',
+    contactPreference: 'email',
+    attachments: [],
+    isFavorite: false
   }
 ];
 
@@ -53,13 +45,17 @@ const PersonalClaimsDirectory = () => {
   const [editingClaim, setEditingClaim] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<'all' | 'gold' | 'chrome'>('all');
   const [filterRegion, setFilterRegion] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | ClaimStatus>('all');
   
   const [newClaim, setNewClaim] = useState<Partial<Claim>>({
     type: 'gold',
     potential: 'medium',
+    status: 'available',
+    contactPreference: 'phone',
     attachments: []
   });
 
+  const { toast } = useToast();
   const regions = Array.from(new Set(claims.map(claim => claim.region)));
 
   const handleAddClaim = () => {
@@ -72,7 +68,17 @@ const PersonalClaimsDirectory = () => {
       };
       setClaims([...claims, claim]);
       setShowAddForm(false);
-      setNewClaim({ type: 'gold', potential: 'medium', attachments: [] });
+      setNewClaim({
+        type: 'gold',
+        potential: 'medium',
+        status: 'available',
+        contactPreference: 'phone',
+        attachments: []
+      });
+      toast({
+        title: "Success",
+        description: "New claim added successfully",
+      });
     }
   };
 
@@ -88,14 +94,35 @@ const PersonalClaimsDirectory = () => {
       return claim;
     }));
     setEditingClaim(null);
+    toast({
+      title: "Success",
+      description: "Claim updated successfully",
+    });
   };
 
   const handleDeleteClaim = (id: string) => {
     setClaims(claims.filter(claim => claim.id !== id));
+    toast({
+      title: "Success",
+      description: "Claim deleted successfully",
+      variant: "destructive"
+    });
+  };
+
+  const handleToggleFavorite = (id: string) => {
+    setClaims(claims.map(claim => {
+      if (claim.id === id) {
+        return {
+          ...claim,
+          isFavorite: !claim.isFavorite
+        };
+      }
+      return claim;
+    }));
   };
 
   const handleFileUpload = (claimId: string, files: FileList) => {
-    const newAttachments: FileAttachment[] = Array.from(files).map(file => ({
+    const newAttachments = Array.from(files).map(file => ({
       id: Math.random().toString(36).substr(2, 9),
       name: file.name,
       type: file.type,
@@ -113,6 +140,11 @@ const PersonalClaimsDirectory = () => {
       }
       return claim;
     }));
+    
+    toast({
+      title: "Success",
+      description: "Files uploaded successfully",
+    });
   };
 
   const handleDeleteFile = (claimId: string, fileId: string) => {
@@ -131,7 +163,8 @@ const PersonalClaimsDirectory = () => {
   const filteredClaims = claims.filter(claim => {
     const typeMatch = filterType === 'all' || claim.type === filterType;
     const regionMatch = filterRegion === 'all' || claim.region === filterRegion;
-    return typeMatch && regionMatch;
+    const statusMatch = filterStatus === 'all' || claim.status === filterStatus;
+    return typeMatch && regionMatch && statusMatch;
   });
 
   return (
@@ -141,143 +174,30 @@ const PersonalClaimsDirectory = () => {
         <p className="text-gray-600">Manage and track mining claim opportunities</p>
       </header>
 
-      <div className="mb-6 flex flex-wrap gap-4">
-        <select
-          className="p-2 border rounded-md"
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value as 'all' | 'gold' | 'chrome')}
-        >
-          <option value="all">All Types</option>
-          <option value="gold">Gold</option>
-          <option value="chrome">Chrome</option>
-        </select>
-
-        <select
-          className="p-2 border rounded-md"
-          value={filterRegion}
-          onChange={(e) => setFilterRegion(e.target.value)}
-        >
-          <option value="all">All Regions</option>
-          {regions.map(region => (
-            <option key={region} value={region}>{region}</option>
-          ))}
-        </select>
-
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="ml-auto flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-        >
-          <Plus size={20} /> Add New Claim
-        </button>
-      </div>
+      <ClaimFilters
+        filterType={filterType}
+        setFilterType={setFilterType}
+        filterRegion={filterRegion}
+        setFilterRegion={setFilterRegion}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        regions={regions}
+        onAddNew={() => setShowAddForm(true)}
+      />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredClaims.map((claim) => (
           <div key={claim.id} className="bg-white rounded-lg shadow-md p-5">
-            {editingClaim === claim.id ? (
-              <div className="space-y-3">
-                <input
-                  className="w-full p-2 border rounded"
-                  value={claim.sellerName}
-                  onChange={(e) => handleUpdateClaim(claim.id, { sellerName: e.target.value })}
-                />
-                <input
-                  className="w-full p-2 border rounded"
-                  value={claim.sellerPhone}
-                  onChange={(e) => handleUpdateClaim(claim.id, { sellerPhone: e.target.value })}
-                />
-                <input
-                  className="w-full p-2 border rounded"
-                  value={claim.estimatedValue}
-                  onChange={(e) => handleUpdateClaim(claim.id, { estimatedValue: e.target.value })}
-                />
-                <select
-                  className="w-full p-2 border rounded"
-                  value={claim.potential}
-                  onChange={(e) => handleUpdateClaim(claim.id, { potential: e.target.value as 'high' | 'medium' | 'low' })}
-                >
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
-                </select>
-                <textarea
-                  className="w-full p-2 border rounded"
-                  value={claim.description || ''}
-                  onChange={(e) => handleUpdateClaim(claim.id, { description: e.target.value })}
-                />
-                <div className="mt-4">
-                  <h4 className="text-sm font-semibold mb-2">Attachments</h4>
-                  <FileUpload onFilesSelected={(files) => handleFileUpload(claim.id, files)} />
-                  <div className="mt-2 space-y-2">
-                    {claim.attachments.map(file => (
-                      <FilePreview
-                        key={file.id}
-                        file={file}
-                        onDelete={(fileId) => handleDeleteFile(claim.id, fileId)}
-                      />
-                    ))}
-                  </div>
-                </div>
-                <button
-                  onClick={() => setEditingClaim(null)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                >
-                  Save Changes
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-xl font-semibold text-gray-800">
-                    {claim.type.charAt(0).toUpperCase() + claim.type.slice(1)} Claim ({claim.id})
-                  </h3>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setEditingClaim(claim.id)}
-                      className="text-gray-600 hover:text-blue-600"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClaim(claim.id)}
-                      className="text-gray-600 hover:text-red-600"
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                </div>
-                <p className="text-gray-600 mb-1">Region: {claim.region}</p>
-                <p className="text-gray-600 mb-1">
-                  Seller: <a href={`tel:${claim.sellerPhone}`} className="text-blue-600 hover:underline">
-                    {claim.sellerName}
-                  </a>
-                </p>
-                <p className="text-gray-600 mb-1">Estimated Value: {claim.estimatedValue}</p>
-                <p className="text-gray-600 mb-2">{claim.description}</p>
-                {claim.attachments.length > 0 && (
-                  <div className="mt-4">
-                    <h4 className="text-sm font-semibold mb-2">Attachments ({claim.attachments.length})</h4>
-                    <div className="space-y-2">
-                      {claim.attachments.map(file => (
-                        <FilePreview key={file.id} file={file} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <div className="flex justify-between items-center mt-3">
-                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                    claim.potential === 'high' ? 'bg-green-100 text-green-800' :
-                    claim.potential === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {claim.potential}
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    Last updated: {claim.lastUpdated}
-                  </span>
-                </div>
-              </>
-            )}
+            <ClaimCard
+              claim={claim}
+              isEditing={editingClaim === claim.id}
+              onEdit={setEditingClaim}
+              onDelete={handleDeleteClaim}
+              onUpdate={handleUpdateClaim}
+              onToggleFavorite={handleToggleFavorite}
+              onFileUpload={handleFileUpload}
+              onDeleteFile={handleDeleteFile}
+            />
           </div>
         ))}
       </div>
@@ -334,46 +254,60 @@ const PersonalClaimsDirectory = () => {
                 <option value="medium">Medium Potential</option>
                 <option value="low">Low Potential</option>
               </select>
+              <select
+                className="w-full p-2 border rounded"
+                value={newClaim.status}
+                onChange={(e) => setNewClaim({ ...newClaim, status: e.target.value as ClaimStatus })}
+              >
+                <option value="available">Available</option>
+                <option value="under_negotiation">Under Negotiation</option>
+                <option value="sold">Sold</option>
+              </select>
+              <input
+                placeholder="Resource Estimate"
+                className="w-full p-2 border rounded"
+                value={newClaim.resourceEstimate || ''}
+                onChange={(e) => setNewClaim({ ...newClaim, resourceEstimate: e.target.value })}
+              />
+              <input
+                placeholder="Legal Details"
+                className="w-full p-2 border rounded"
+                value={newClaim.legalDetails || ''}
+                onChange={(e) => setNewClaim({ ...newClaim, legalDetails: e.target.value })}
+              />
+              <input
+                placeholder="Accessibility"
+                className="w-full p-2 border rounded"
+                value={newClaim.accessibility || ''}
+                onChange={(e) => setNewClaim({ ...newClaim, accessibility: e.target.value })}
+              />
+              <textarea
+                placeholder="Environmental Information"
+                className="w-full p-2 border rounded"
+                value={newClaim.environmentalInfo || ''}
+                onChange={(e) => setNewClaim({ ...newClaim, environmentalInfo: e.target.value })}
+              />
+              <textarea
+                placeholder="Investment Highlights"
+                className="w-full p-2 border rounded"
+                value={newClaim.investmentHighlights || ''}
+                onChange={(e) => setNewClaim({ ...newClaim, investmentHighlights: e.target.value })}
+              />
+              <select
+                className="w-full p-2 border rounded"
+                value={newClaim.contactPreference}
+                onChange={(e) => setNewClaim({ ...newClaim, contactPreference: e.target.value as Claim['contactPreference'] })}
+              >
+                <option value="phone">Phone</option>
+                <option value="email">Email</option>
+                <option value="in_person">In Person</option>
+              </select>
               <textarea
                 placeholder="Description"
                 className="w-full p-2 border rounded"
                 value={newClaim.description || ''}
                 onChange={(e) => setNewClaim({ ...newClaim, description: e.target.value })}
               />
-              <div className="mt-4">
-                <h4 className="text-sm font-semibold mb-2">Attachments</h4>
-                <FileUpload
-                  onFilesSelected={(files) => {
-                    const newAttachments: FileAttachment[] = Array.from(files).map(file => ({
-                      id: Math.random().toString(36).substr(2, 9),
-                      name: file.name,
-                      type: file.type,
-                      url: URL.createObjectURL(file),
-                      dateAdded: new Date().toISOString().split('T')[0]
-                    }));
-                    setNewClaim({
-                      ...newClaim,
-                      attachments: [...(newClaim.attachments || []), ...newAttachments]
-                    });
-                  }}
-                />
-                {newClaim.attachments && newClaim.attachments.length > 0 && (
-                  <div className="mt-2 space-y-2">
-                    {newClaim.attachments.map(file => (
-                      <FilePreview
-                        key={file.id}
-                        file={file}
-                        onDelete={(fileId) => {
-                          setNewClaim({
-                            ...newClaim,
-                            attachments: newClaim.attachments!.filter(f => f.id !== fileId)
-                          });
-                        }}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => setShowAddForm(false)}
