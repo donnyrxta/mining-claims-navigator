@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Claim, ClaimStatus } from '../types/claim';
+import { Claim, ClaimStatus, OpportunityType } from '../types/claim';
 import ClaimFilters from '../components/ClaimFilters';
 import ClaimCard from '../components/ClaimCard';
 import { useToast } from "@/components/ui/use-toast";
@@ -19,7 +19,8 @@ const initialClaims: Claim[] = [
     status: 'available',
     contactPreference: 'phone',
     attachments: [],
-    isFavorite: false
+    isFavorite: false,
+    opportunityType: 'for_sale' // Added this field
   },
   {
     id: 'C1',
@@ -35,7 +36,8 @@ const initialClaims: Claim[] = [
     status: 'available',
     contactPreference: 'email',
     attachments: [],
-    isFavorite: false
+    isFavorite: false,
+    opportunityType: 'seeking_joint_venture' // Added this field
   }
 ];
 
@@ -46,13 +48,15 @@ const PersonalClaimsDirectory = () => {
   const [filterType, setFilterType] = useState<'all' | 'gold' | 'chrome'>('all');
   const [filterRegion, setFilterRegion] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | ClaimStatus>('all');
+  const [filterOpportunity, setFilterOpportunity] = useState<'all' | OpportunityType>('all');
   
   const [newClaim, setNewClaim] = useState<Partial<Claim>>({
     type: 'gold',
     potential: 'medium',
     status: 'available',
     contactPreference: 'phone',
-    attachments: []
+    attachments: [],
+    opportunityType: 'for_sale'
   });
 
   const { toast } = useToast();
@@ -73,7 +77,8 @@ const PersonalClaimsDirectory = () => {
         potential: 'medium',
         status: 'available',
         contactPreference: 'phone',
-        attachments: []
+        attachments: [],
+        opportunityType: 'for_sale'
       });
       toast({
         title: "Success",
@@ -164,7 +169,8 @@ const PersonalClaimsDirectory = () => {
     const typeMatch = filterType === 'all' || claim.type === filterType;
     const regionMatch = filterRegion === 'all' || claim.region === filterRegion;
     const statusMatch = filterStatus === 'all' || claim.status === filterStatus;
-    return typeMatch && regionMatch && statusMatch;
+    const opportunityMatch = filterOpportunity === 'all' || claim.opportunityType === filterOpportunity;
+    return typeMatch && regionMatch && statusMatch && opportunityMatch;
   });
 
   return (
@@ -181,6 +187,8 @@ const PersonalClaimsDirectory = () => {
         setFilterRegion={setFilterRegion}
         filterStatus={filterStatus}
         setFilterStatus={setFilterStatus}
+        filterOpportunity={filterOpportunity}
+        setFilterOpportunity={setFilterOpportunity}
         regions={regions}
         onAddNew={() => setShowAddForm(true)}
       />

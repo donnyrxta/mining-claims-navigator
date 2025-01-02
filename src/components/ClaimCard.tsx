@@ -25,6 +25,10 @@ const ClaimCard = ({
   onFileUpload,
   onDeleteFile
 }: ClaimCardProps) => {
+  const formatOpportunityType = (type: OpportunityType) => {
+    return type ? type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') : '';
+  };
+
   if (isEditing) {
     return (
       <div className="space-y-3">
@@ -215,7 +219,7 @@ const ClaimCard = ({
       <div className="mb-4 p-3 bg-blue-50 rounded-md">
         <h4 className="text-sm font-semibold mb-1">Opportunity</h4>
         <p className="text-sm text-gray-600">
-          Type: {claim.opportunityType.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+          Type: {formatOpportunityType(claim.opportunityType)}
         </p>
         {claim.askingPrice && (
           <p className="text-sm text-gray-600">Asking Price: {claim.askingPrice}</p>
