@@ -3,6 +3,7 @@ import { Claim, ClaimStatus, OpportunityType } from '../types/claim';
 import ClaimFilters from '../components/ClaimFilters';
 import ClaimCard from '../components/ClaimCard';
 import { useToast } from "@/components/ui/use-toast";
+import { useSupabaseStatus } from '@/hooks/useSupabaseStatus';
 
 const initialClaims: Claim[] = [
   {
@@ -42,6 +43,7 @@ const initialClaims: Claim[] = [
 ];
 
 const PersonalClaimsDirectory = () => {
+  const { isConfigured } = useSupabaseStatus();
   const [claims, setClaims] = useState<Claim[]>(initialClaims);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingClaim, setEditingClaim] = useState<string | null>(null);
@@ -172,6 +174,19 @@ const PersonalClaimsDirectory = () => {
     const opportunityMatch = filterOpportunity === 'all' || claim.opportunityType === filterOpportunity;
     return typeMatch && regionMatch && statusMatch && opportunityMatch;
   });
+
+  if (!isConfigured) {
+    return (
+      <div className="p-8 bg-gray-50 min-h-screen">
+        <div className="max-w-2xl mx-auto text-center">
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">Setup Required</h1>
+          <p className="text-gray-600 mb-4">
+            Please connect to Supabase in the Lovable interface to continue.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
