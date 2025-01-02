@@ -8,7 +8,7 @@ export type FileAttachment = {
 
 export type ClaimStatus = 'available' | 'under_negotiation' | 'sold';
 export type ContactPreference = 'phone' | 'email' | 'in_person';
-export type UserRole = 'basic' | 'premium' | 'admin';
+export type OpportunityType = 'for_sale' | 'seeking_joint_venture' | 'not_available';
 
 export type Claim = {
   id: string;
@@ -22,7 +22,6 @@ export type Claim = {
   dateAdded: string;
   lastUpdated: string;
   attachments: FileAttachment[];
-  // New fields
   status: ClaimStatus;
   resourceEstimate?: string;
   legalDetails?: string;
@@ -32,11 +31,8 @@ export type Claim = {
   contactPreference: ContactPreference;
   isFavorite?: boolean;
   notes?: string;
-};
-
-export type User = {
-  id: string;
-  email: string;
-  role: UserRole;
-  subscriptionStatus: 'active' | 'inactive';
+  // New fields for opportunities
+  opportunityType: OpportunityType;
+  partnershipDetails?: string;
+  askingPrice?: string;
 };

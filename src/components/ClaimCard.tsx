@@ -1,7 +1,8 @@
 import React from 'react';
 import { Edit2, X, Star, MessageCircle, Download } from 'lucide-react';
-import { Claim, FileAttachment } from '@/types/claim';
+import { Claim, FileAttachment, OpportunityType } from '@/types/claim';
 import FilePreview from './FilePreview';
+import FileUpload from './FileUpload';
 
 type ClaimCardProps = {
   claim: Claim;
@@ -96,6 +97,27 @@ const ClaimCard = ({
           value={claim.notes || ''}
           onChange={(e) => onUpdate(claim.id, { notes: e.target.value })}
         />
+        <select
+          className="w-full p-2 border rounded"
+          value={claim.opportunityType}
+          onChange={(e) => onUpdate(claim.id, { opportunityType: e.target.value as OpportunityType })}
+        >
+          <option value="for_sale">For Sale</option>
+          <option value="seeking_joint_venture">Seeking Joint Venture</option>
+          <option value="not_available">Not Available</option>
+        </select>
+        <input
+          className="w-full p-2 border rounded"
+          placeholder="Asking Price"
+          value={claim.askingPrice || ''}
+          onChange={(e) => onUpdate(claim.id, { askingPrice: e.target.value })}
+        />
+        <textarea
+          className="w-full p-2 border rounded"
+          placeholder="Partnership Details"
+          value={claim.partnershipDetails || ''}
+          onChange={(e) => onUpdate(claim.id, { partnershipDetails: e.target.value })}
+        />
         <div className="mt-4">
           <h4 className="text-sm font-semibold mb-2">Attachments</h4>
           <FileUpload onFilesSelected={(files) => onFileUpload(claim.id, files)} />
@@ -189,6 +211,18 @@ const ClaimCard = ({
         <span className="text-xs text-gray-500">
           Last updated: {claim.lastUpdated}
         </span>
+      </div>
+      <div className="mb-4 p-3 bg-blue-50 rounded-md">
+        <h4 className="text-sm font-semibold mb-1">Opportunity</h4>
+        <p className="text-sm text-gray-600">
+          Type: {claim.opportunityType.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+        </p>
+        {claim.askingPrice && (
+          <p className="text-sm text-gray-600">Asking Price: {claim.askingPrice}</p>
+        )}
+        {claim.partnershipDetails && (
+          <p className="text-sm text-gray-600">Partnership Details: {claim.partnershipDetails}</p>
+        )}
       </div>
     </>
   );

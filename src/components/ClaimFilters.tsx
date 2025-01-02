@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Plus } from 'lucide-react';
-import { ClaimStatus } from '@/types/claim';
+import { ClaimStatus, OpportunityType } from '@/types/claim';
 
 type ClaimFiltersProps = {
   filterType: 'all' | 'gold' | 'chrome';
@@ -12,6 +12,8 @@ type ClaimFiltersProps = {
   setFilterRegion: (region: string) => void;
   filterStatus: 'all' | ClaimStatus;
   setFilterStatus: (status: 'all' | ClaimStatus) => void;
+  filterOpportunity: 'all' | OpportunityType;
+  setFilterOpportunity: (type: 'all' | OpportunityType) => void;
   regions: string[];
   onAddNew: () => void;
 };
@@ -23,6 +25,8 @@ const ClaimFilters = ({
   setFilterRegion,
   filterStatus,
   setFilterStatus,
+  filterOpportunity,
+  setFilterOpportunity,
   regions,
   onAddNew
 }: ClaimFiltersProps) => {
@@ -58,6 +62,17 @@ const ClaimFilters = ({
         <option value="available">Available</option>
         <option value="under_negotiation">Under Negotiation</option>
         <option value="sold">Sold</option>
+      </select>
+
+      <select
+        className="p-2 border rounded-md"
+        value={filterOpportunity}
+        onChange={(e) => setFilterOpportunity(e.target.value as 'all' | OpportunityType)}
+      >
+        <option value="all">All Opportunities</option>
+        <option value="for_sale">For Sale</option>
+        <option value="seeking_joint_venture">Seeking Joint Venture</option>
+        <option value="not_available">Not Available</option>
       </select>
 
       <button
