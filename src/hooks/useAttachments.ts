@@ -11,6 +11,10 @@ export function useAttachments(claimId: string) {
   const { data: attachments, isLoading } = useQuery({
     queryKey: ['attachments', claimId],
     queryFn: async () => {
+      if (!supabase) {
+        return [];
+      }
+
       const { data, error } = await supabase
         .from('claim_attachments')
         .select('*')
@@ -24,6 +28,10 @@ export function useAttachments(claimId: string) {
 
   const uploadFile = useMutation({
     mutationFn: async ({ file, userId }: { file: File; userId: string }) => {
+      if (!supabase) {
+        throw new Error('Supabase is not configured');
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${claimId}/${fileName}`;
@@ -67,6 +75,10 @@ export function useAttachments(claimId: string) {
 
   const deleteFile = useMutation({
     mutationFn: async (attachment: ClaimAttachment) => {
+      if (!supabase) {
+        throw new Error('Supabase is not configured');
+      }
+
       // Delete from storage
       const filePath = attachment.file_url.split('/').pop();
       if (filePath) {

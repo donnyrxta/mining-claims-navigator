@@ -9,13 +9,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Supabase URL and Anon Key are required. Please make sure you have connected to Supabase in the Lovable interface.');
 }
 
-// Create client with empty strings as fallback to prevent runtime crashes
-export const supabase = createClient<Database>(
-  supabaseUrl || '',
-  supabaseAnonKey || ''
-);
+// Create a dummy client if not configured to prevent runtime crashes
+export const supabase = (!supabaseUrl || !supabaseAnonKey) 
+  ? null 
+  : createClient<Database>(supabaseUrl, supabaseAnonKey);
 
 // Export a function to check if Supabase is properly configured
 export const isSupabaseConfigured = () => {
-  return Boolean(supabaseUrl && supabaseAnonKey);
+  return Boolean(supabase);
 };

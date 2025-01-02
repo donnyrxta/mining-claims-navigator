@@ -13,6 +13,10 @@ export function useClaims() {
   const { data: claims, isLoading } = useQuery({
     queryKey: ['claims'],
     queryFn: async () => {
+      if (!supabase) {
+        return [];
+      }
+
       const { data, error } = await supabase
         .from('claims')
         .select('*')
@@ -25,6 +29,10 @@ export function useClaims() {
 
   const addClaim = useMutation({
     mutationFn: async (newClaim: ClaimInsert) => {
+      if (!supabase) {
+        throw new Error('Supabase is not configured');
+      }
+
       const { data, error } = await supabase
         .from('claims')
         .insert(newClaim)
@@ -45,6 +53,10 @@ export function useClaims() {
 
   const updateClaim = useMutation({
     mutationFn: async ({ id, ...updates }: ClaimUpdate & { id: string }) => {
+      if (!supabase) {
+        throw new Error('Supabase is not configured');
+      }
+
       const { data, error } = await supabase
         .from('claims')
         .update(updates)
@@ -66,6 +78,10 @@ export function useClaims() {
 
   const deleteClaim = useMutation({
     mutationFn: async (id: string) => {
+      if (!supabase) {
+        throw new Error('Supabase is not configured');
+      }
+
       const { error } = await supabase
         .from('claims')
         .delete()
