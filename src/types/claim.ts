@@ -8,6 +8,7 @@ export type FileAttachment = {
 
 export type ClaimStatus = 'available' | 'under_negotiation' | 'sold';
 export type ContactPreference = 'phone' | 'email' | 'in_person';
+export type UserRole = 'basic' | 'premium' | 'admin';
 
 export type Claim = {
   id: string;
@@ -31,4 +32,11 @@ export type Claim = {
   contactPreference: ContactPreference;
   isFavorite?: boolean;
   notes?: string;
+};
+
+export type User = {
+  id: string;
+  email: string;
+  role: UserRole;
+  subscriptionStatus: 'active' | 'inactive';
 };

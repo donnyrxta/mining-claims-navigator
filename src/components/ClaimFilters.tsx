@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Plus } from 'lucide-react';
+import { ClaimStatus } from '@/types/claim';
 
 type ClaimFiltersProps = {
   filterType: 'all' | 'gold' | 'chrome';

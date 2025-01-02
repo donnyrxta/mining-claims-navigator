@@ -1,14 +1,12 @@
 import React, { useRef } from 'react';
+import { Button } from "@/components/ui/button";
 import { Upload } from 'lucide-react';
-
-const ACCEPTED_FILE_TYPES = ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.tif,.tiff";
 
 type FileUploadProps = {
   onFilesSelected: (files: FileList) => void;
-  multiple?: boolean;
 };
 
-const FileUpload = ({ onFilesSelected, multiple = true }: FileUploadProps) => {
+const FileUpload = ({ onFilesSelected }: FileUploadProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleClick = () => {
@@ -23,25 +21,18 @@ const FileUpload = ({ onFilesSelected, multiple = true }: FileUploadProps) => {
   };
 
   return (
-    <div 
-      onClick={handleClick}
-      className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-500 transition-colors"
-    >
+    <div>
       <input
         type="file"
         ref={fileInputRef}
         onChange={handleChange}
-        multiple={multiple}
-        accept={ACCEPTED_FILE_TYPES}
         className="hidden"
+        multiple
+        accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.tif,.tiff"
       />
-      <Upload className="mx-auto mb-2" size={24} />
-      <p className="text-sm text-gray-600">
-        Click to upload files or drag and drop
-      </p>
-      <p className="text-xs text-gray-500 mt-1">
-        Supported formats: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG, TIF
-      </p>
+      <Button onClick={handleClick} variant="outline" className="w-full">
+        <Upload className="mr-2 h-4 w-4" /> Upload Files
+      </Button>
     </div>
   );
 };
