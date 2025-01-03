@@ -31,8 +31,8 @@ export type Claim = {
   contactPreference: ContactPreference;
   isFavorite?: boolean;
   notes?: string;
-  // New fields for opportunities
   opportunityType: OpportunityType;
   partnershipDetails?: string;
   askingPrice?: string;
+  mineral?: string;
 };
