@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Claim, ClaimStatus, OpportunityType } from '../types/claim';
+import { MineralType } from '@/types/minerals';
 import ClaimFilters from '../components/ClaimFilters';
 import ClaimCard from '../components/ClaimCard';
 import { useToast } from "@/components/ui/use-toast";
@@ -21,7 +22,7 @@ const initialClaims: Claim[] = [
     contactPreference: 'phone',
     attachments: [],
     isFavorite: false,
-    opportunityType: 'for_sale' // Added this field
+    opportunityType: 'for_sale'
   },
   {
     id: 'C1',
@@ -38,7 +39,7 @@ const initialClaims: Claim[] = [
     contactPreference: 'email',
     attachments: [],
     isFavorite: false,
-    opportunityType: 'seeking_joint_venture' // Added this field
+    opportunityType: 'seeking_joint_venture'
   }
 ];
 
@@ -51,15 +52,7 @@ const PersonalClaimsDirectory = () => {
   const [filterRegion, setFilterRegion] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | ClaimStatus>('all');
   const [filterOpportunity, setFilterOpportunity] = useState<'all' | OpportunityType>('all');
-  
-  const [newClaim, setNewClaim] = useState<Partial<Claim>>({
-    type: 'gold',
-    potential: 'medium',
-    status: 'available',
-    contactPreference: 'phone',
-    attachments: [],
-    opportunityType: 'for_sale'
-  });
+  const [filterMineral, setFilterMineral] = useState<'all' | MineralType>('all');
 
   const { toast } = useToast();
   const regions = Array.from(new Set(claims.map(claim => claim.region)));
@@ -172,7 +165,8 @@ const PersonalClaimsDirectory = () => {
     const regionMatch = filterRegion === 'all' || claim.region === filterRegion;
     const statusMatch = filterStatus === 'all' || claim.status === filterStatus;
     const opportunityMatch = filterOpportunity === 'all' || claim.opportunityType === filterOpportunity;
-    return typeMatch && regionMatch && statusMatch && opportunityMatch;
+    const mineralMatch = filterMineral === 'all' || claim.mineral === filterMineral;
+    return typeMatch && regionMatch && statusMatch && opportunityMatch && mineralMatch;
   });
 
   if (!isConfigured) {
@@ -204,6 +198,8 @@ const PersonalClaimsDirectory = () => {
         setFilterStatus={setFilterStatus}
         filterOpportunity={filterOpportunity}
         setFilterOpportunity={setFilterOpportunity}
+        filterMineral={filterMineral}
+        setFilterMineral={setFilterMineral}
         regions={regions}
         onAddNew={() => setShowAddForm(true)}
       />
@@ -354,3 +350,4 @@ const PersonalClaimsDirectory = () => {
 };
 
 export default PersonalClaimsDirectory;
+
