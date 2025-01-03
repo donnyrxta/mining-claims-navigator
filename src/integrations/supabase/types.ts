@@ -36,6 +36,33 @@ export type Database = {
         }
         Relationships: []
       }
+      secondary_minerals: {
+        Row: {
+          claim_id: string
+          created_at: string
+          grade: string | null
+          id: string
+          mineral: Database["public"]["Enums"]["mineral_type"]
+          notes: string | null
+        }
+        Insert: {
+          claim_id: string
+          created_at?: string
+          grade?: string | null
+          id?: string
+          mineral: Database["public"]["Enums"]["mineral_type"]
+          notes?: string | null
+        }
+        Update: {
+          claim_id?: string
+          created_at?: string
+          grade?: string | null
+          id?: string
+          mineral?: Database["public"]["Enums"]["mineral_type"]
+          notes?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
