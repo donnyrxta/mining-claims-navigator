@@ -9,7 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      claim_minerals: {
+        Row: {
+          claim_id: string
+          created_at: string
+          grade: string | null
+          id: string
+          mineral: Database["public"]["Enums"]["mineral_type"]
+          notes: string | null
+        }
+        Insert: {
+          claim_id: string
+          created_at?: string
+          grade?: string | null
+          id?: string
+          mineral: Database["public"]["Enums"]["mineral_type"]
+          notes?: string | null
+        }
+        Update: {
+          claim_id?: string
+          created_at?: string
+          grade?: string | null
+          id?: string
+          mineral?: Database["public"]["Enums"]["mineral_type"]
+          notes?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +44,19 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      mineral_type:
+        | "gold"
+        | "chrome"
+        | "platinum"
+        | "diamond"
+        | "copper"
+        | "nickel"
+        | "lithium"
+        | "coal"
+        | "iron_ore"
+        | "tantalite"
+        | "emerald"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never

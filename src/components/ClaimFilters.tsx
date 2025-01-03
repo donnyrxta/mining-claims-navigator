@@ -1,9 +1,10 @@
 import React from 'react';
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Plus } from 'lucide-react';
 import { ClaimStatus, OpportunityType } from '@/types/claim';
+import { MineralType } from '@/types/minerals';
+import { Plus } from 'lucide-react';
+import MineralsFilter from './minerals/MineralsFilter';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 type ClaimFiltersProps = {
   filterType: 'all' | 'gold' | 'chrome';
@@ -14,6 +15,8 @@ type ClaimFiltersProps = {
   setFilterStatus: (status: 'all' | ClaimStatus) => void;
   filterOpportunity: 'all' | OpportunityType;
   setFilterOpportunity: (type: 'all' | OpportunityType) => void;
+  filterMineral: 'all' | MineralType;
+  setFilterMineral: (mineral: 'all' | MineralType) => void;
   regions: string[];
   onAddNew: () => void;
 };
@@ -27,60 +30,75 @@ const ClaimFilters = ({
   setFilterStatus,
   filterOpportunity,
   setFilterOpportunity,
+  filterMineral,
+  setFilterMineral,
   regions,
   onAddNew
 }: ClaimFiltersProps) => {
   return (
     <div className="mb-6 flex flex-wrap gap-4">
-      <select
-        className="p-2 border rounded-md"
-        value={filterType}
-        onChange={(e) => setFilterType(e.target.value as 'all' | 'gold' | 'chrome')}
-      >
-        <option value="all">All Types</option>
-        <option value="gold">Gold</option>
-        <option value="chrome">Chrome</option>
-      </select>
+      <Select value={filterType} onValueChange={(value) => setFilterType(value as 'all' | 'gold' | 'chrome')}>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Filter by type" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Types</SelectItem>
+          <SelectItem value="gold">Gold</SelectItem>
+          <SelectItem value="chrome">Chrome</SelectItem>
+        </SelectContent>
+      </Select>
 
-      <select
-        className="p-2 border rounded-md"
-        value={filterRegion}
-        onChange={(e) => setFilterRegion(e.target.value)}
-      >
-        <option value="all">All Regions</option>
-        {regions.map(region => (
-          <option key={region} value={region}>{region}</option>
-        ))}
-      </select>
+      <Select value={filterRegion} onValueChange={setFilterRegion}>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Filter by region" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Regions</SelectItem>
+          {regions.map(region => (
+            <SelectItem key={region} value={region}>{region}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-      <select
-        className="p-2 border rounded-md"
-        value={filterStatus}
-        onChange={(e) => setFilterStatus(e.target.value as 'all' | ClaimStatus)}
-      >
-        <option value="all">All Statuses</option>
-        <option value="available">Available</option>
-        <option value="under_negotiation">Under Negotiation</option>
-        <option value="sold">Sold</option>
-      </select>
+      <Select value={filterStatus} onValueChange={(value) => setFilterStatus(value as 'all' | ClaimStatus)}>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Filter by status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Statuses</SelectItem>
+          <SelectItem value="available">Available</SelectItem>
+          <SelectItem value="under_negotiation">Under Negotiation</SelectItem>
+          <SelectItem value="sold">Sold</SelectItem>
+        </SelectContent>
+      </Select>
 
-      <select
-        className="p-2 border rounded-md"
-        value={filterOpportunity}
-        onChange={(e) => setFilterOpportunity(e.target.value as 'all' | OpportunityType)}
+      <Select 
+        value={filterOpportunity} 
+        onValueChange={(value) => setFilterOpportunity(value as 'all' | OpportunityType)}
       >
-        <option value="all">All Opportunities</option>
-        <option value="for_sale">For Sale</option>
-        <option value="seeking_joint_venture">Seeking Joint Venture</option>
-        <option value="not_available">Not Available</option>
-      </select>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Filter by opportunity" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Opportunities</SelectItem>
+          <SelectItem value="for_sale">For Sale</SelectItem>
+          <SelectItem value="seeking_joint_venture">Seeking Joint Venture</SelectItem>
+          <SelectItem value="not_available">Not Available</SelectItem>
+        </SelectContent>
+      </Select>
 
-      <button
+      <MineralsFilter
+        selectedMineral={filterMineral}
+        onMineralChange={setFilterMineral}
+      />
+
+      <Button
         onClick={onAddNew}
-        className="ml-auto flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+        className="ml-auto flex items-center gap-2"
+        variant="default"
       >
         <Plus size={20} /> Add New Claim
-      </button>
+      </Button>
     </div>
   );
 };
