@@ -6,13 +6,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import ClaimAttachments from './ClaimAttachments';
 
 type AddClaimFormProps = {
   onSubmit: (claim: Partial<Claim>) => void;
   onCancel: () => void;
+  onFileUpload?: (files: FileList) => void;
 };
 
-const AddClaimForm = ({ onSubmit, onCancel }: AddClaimFormProps) => {
+const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) => {
   const [newClaim, setNewClaim] = React.useState<Partial<Claim>>({
     type: 'gold',
     potential: 'medium',
@@ -164,6 +166,17 @@ const AddClaimForm = ({ onSubmit, onCancel }: AddClaimFormProps) => {
               placeholder="Description"
               value={newClaim.description || ''}
               onChange={(e) => setNewClaim({ ...newClaim, description: e.target.value })}
+            />
+
+            <ClaimAttachments
+              attachments={newClaim.attachments || []}
+              claimId={newClaim.id || ''}
+              isEditing={true}
+              onFileUpload={onFileUpload ? (files) => {
+                if (newClaim.id) {
+                  onFileUpload(files);
+                }
+              } : undefined}
             />
           </div>
         </ScrollArea>

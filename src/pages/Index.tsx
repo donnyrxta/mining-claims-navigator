@@ -7,6 +7,8 @@ import { useSupabaseStatus } from '@/hooks/useSupabaseStatus';
 import AddClaimForm from '@/components/claims/AddClaimForm';
 import ClaimsList from '@/components/claims/ClaimsList';
 import SearchBar from '@/components/claims/SearchBar';
+import { useAttachments } from '@/hooks/useAttachments';
+import { supabase } from '@/lib/supabase';
 
 const initialClaims: Claim[] = [
   {
@@ -47,7 +49,7 @@ const initialClaims: Claim[] = [
 
 const PersonalClaimsDirectory = () => {
   const { isConfigured } = useSupabaseStatus();
-  const [claims, setClaims] = useState<Claim[]>(initialClaims);
+  const [claims, setClaims] = useState<Partial<Claim>[]>(initialClaims);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingClaim, setEditingClaim] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<'all' | 'gold' | 'chrome'>('all');
@@ -56,17 +58,84 @@ const PersonalClaimsDirectory = () => {
   const [filterOpportunity, setFilterOpportunity] = useState<'all' | OpportunityType>('all');
   const [filterMineral, setFilterMineral] = useState<'all' | MineralType>('all');
   const [searchTerm, setSearchTerm] = useState('');
-
   const { toast } = useToast();
-  const regions = Array.from(new Set(claims.map(claim => claim.region)));
 
-  const handleAddClaim = (newClaim: Partial<Claim>) => {
+  const handleFileUpload = async (files: FileList, claimId?: string) => {
+    if (!supabase) {
+      toast({
+        title: "Error",
+        description: "Storage is not configured",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to upload files",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    for (const file of Array.from(files)) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${claimId || 'temp'}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('claim-attachments')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        toast({
+          title: "Error",
+          description: `Failed to upload ${file.name}`,
+          variant: "destructive",
+        });
+        continue;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('claim-attachments')
+        .getPublicUrl(filePath);
+
+      const { error: dbError } = await supabase
+        .from('claim_attachments')
+        .insert({
+          claim_id: claimId || 'temp',
+          file_name: file.name,
+          file_type: file.type,
+          file_url: publicUrl,
+          user_id: user.data.user.id,
+        });
+
+      if (dbError) {
+        toast({
+          title: "Error",
+          description: `Failed to save ${file.name} metadata`,
+          variant: "destructive",
+        });
+        continue;
+      }
+
+      toast({
+        title: "Success",
+        description: `${file.name} uploaded successfully`,
+      });
+    }
+  };
+
+  const handleAddClaim = async (newClaim: Partial<Claim>) => {
     const today = new Date().toISOString().split('T')[0];
     const claim: Claim = {
       ...newClaim as Claim,
       dateAdded: today,
-      lastUpdated: today
+      lastUpdated: today,
     };
+    
     setClaims([...claims, claim]);
     setShowAddForm(false);
     toast({
@@ -114,44 +183,7 @@ const PersonalClaimsDirectory = () => {
     }));
   };
 
-  const handleFileUpload = (claimId: string, files: FileList) => {
-    const newAttachments = Array.from(files).map(file => ({
-      id: Math.random().toString(36).substr(2, 9),
-      name: file.name,
-      type: file.type,
-      url: URL.createObjectURL(file),
-      dateAdded: new Date().toISOString().split('T')[0]
-    }));
-
-    setClaims(claims.map(claim => {
-      if (claim.id === claimId) {
-        return {
-          ...claim,
-          attachments: [...claim.attachments, ...newAttachments],
-          lastUpdated: new Date().toISOString().split('T')[0]
-        };
-      }
-      return claim;
-    }));
-    
-    toast({
-      title: "Success",
-      description: "Files uploaded successfully",
-    });
-  };
-
-  const handleDeleteFile = (claimId: string, fileId: string) => {
-    setClaims(claims.map(claim => {
-      if (claim.id === claimId) {
-        return {
-          ...claim,
-          attachments: claim.attachments.filter(file => file.id !== fileId),
-          lastUpdated: new Date().toISOString().split('T')[0]
-        };
-      }
-      return claim;
-    }));
-  };
+  const regions = Array.from(new Set(claims.map(claim => claim.region)));
 
   const filteredClaims = claims.filter(claim => {
     const typeMatch = filterType === 'all' || claim.type === filterType;
@@ -212,7 +244,7 @@ const PersonalClaimsDirectory = () => {
       />
 
       <ClaimsList
-        claims={filteredClaims}
+        claims={filteredClaims as Claim[]}
         editingClaim={editingClaim}
         onEdit={setEditingClaim}
         onDelete={handleDeleteClaim}
@@ -226,6 +258,7 @@ const PersonalClaimsDirectory = () => {
         <AddClaimForm
           onSubmit={handleAddClaim}
           onCancel={() => setShowAddForm(false)}
+          onFileUpload={(files) => handleFileUpload(files)}
         />
       )}
     </div>
