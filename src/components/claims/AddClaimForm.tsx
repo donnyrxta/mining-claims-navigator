@@ -30,6 +30,12 @@ const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) =
     }
   };
 
+  const handleFileUploadWrapper = (files: FileList) => {
+    if (onFileUpload && newClaim.id) {
+      onFileUpload(files);
+    }
+  };
+
   return (
     <Dialog open={true} onOpenChange={() => onCancel()}>
       <DialogContent className="max-w-2xl max-h-[90vh] p-0">
@@ -172,7 +178,7 @@ const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) =
               attachments={newClaim.attachments || []}
               claimId={newClaim.id || ''}
               isEditing={true}
-              onFileUpload={onFileUpload}
+              onFileUpload={handleFileUploadWrapper}
               onDeleteFile={undefined}
             />
           </div>
