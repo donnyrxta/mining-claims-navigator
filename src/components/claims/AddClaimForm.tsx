@@ -30,8 +30,8 @@ const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) =
     }
   };
 
-  const handleFileUploadWrapper = (files: FileList) => {
-    if (onFileUpload && newClaim.id) {
+  const handleFileUploadWrapper = (_claimId: string, files: FileList) => {
+    if (onFileUpload) {
       onFileUpload(files);
     }
   };
