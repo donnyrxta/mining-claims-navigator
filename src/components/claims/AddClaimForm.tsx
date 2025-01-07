@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 type AddClaimFormProps = {
   onSubmit: (claim: Partial<Claim>) => void;
@@ -28,17 +29,21 @@ const AddClaimForm = ({ onSubmit, onCancel }: AddClaimFormProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center overflow-y-auto p-4 sm:p-6">
-      <div className="bg-white rounded-lg w-full max-w-2xl my-8">
-        <div className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Add New Claim</h2>
-          <ScrollArea className="h-[60vh]">
-            <div className="space-y-4 px-4">
+    <Dialog open={true} onOpenChange={() => onCancel()}>
+      <DialogContent className="max-w-2xl max-h-[90vh] p-0">
+        <DialogHeader className="px-6 pt-6">
+          <DialogTitle className="text-xl font-semibold">Add New Claim</DialogTitle>
+        </DialogHeader>
+        
+        <ScrollArea className="px-6 pb-6 max-h-[calc(90vh-8rem)]">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 placeholder="Claim ID (e.g., G1, C1)"
                 value={newClaim.id || ''}
                 onChange={(e) => setNewClaim({ ...newClaim, id: e.target.value })}
               />
+              
               <Select
                 value={newClaim.type}
                 onValueChange={(value) => setNewClaim({ ...newClaim, type: value as 'gold' | 'chrome' })}
@@ -51,26 +56,37 @@ const AddClaimForm = ({ onSubmit, onCancel }: AddClaimFormProps) => {
                   <SelectItem value="chrome">Chrome</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 placeholder="Region"
                 value={newClaim.region || ''}
                 onChange={(e) => setNewClaim({ ...newClaim, region: e.target.value })}
               />
+              
               <Input
                 placeholder="Seller Name"
                 value={newClaim.sellerName || ''}
                 onChange={(e) => setNewClaim({ ...newClaim, sellerName: e.target.value })}
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 placeholder="Seller Phone"
                 value={newClaim.sellerPhone || ''}
                 onChange={(e) => setNewClaim({ ...newClaim, sellerPhone: e.target.value })}
               />
+              
               <Input
                 placeholder="Estimated Value"
                 value={newClaim.estimatedValue || ''}
                 onChange={(e) => setNewClaim({ ...newClaim, estimatedValue: e.target.value })}
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Select
                 value={newClaim.potential}
                 onValueChange={(value) => setNewClaim({ ...newClaim, potential: value as 'high' | 'medium' | 'low' })}
@@ -84,6 +100,7 @@ const AddClaimForm = ({ onSubmit, onCancel }: AddClaimFormProps) => {
                   <SelectItem value="low">Low Potential</SelectItem>
                 </SelectContent>
               </Select>
+
               <Select
                 value={newClaim.status}
                 onValueChange={(value) => setNewClaim({ ...newClaim, status: value as ClaimStatus })}
@@ -97,62 +114,70 @@ const AddClaimForm = ({ onSubmit, onCancel }: AddClaimFormProps) => {
                   <SelectItem value="sold">Sold</SelectItem>
                 </SelectContent>
               </Select>
-              <Input
-                placeholder="Resource Estimate"
-                value={newClaim.resourceEstimate || ''}
-                onChange={(e) => setNewClaim({ ...newClaim, resourceEstimate: e.target.value })}
-              />
-              <Input
-                placeholder="Legal Details"
-                value={newClaim.legalDetails || ''}
-                onChange={(e) => setNewClaim({ ...newClaim, legalDetails: e.target.value })}
-              />
-              <Input
-                placeholder="Accessibility"
-                value={newClaim.accessibility || ''}
-                onChange={(e) => setNewClaim({ ...newClaim, accessibility: e.target.value })}
-              />
-              <Textarea
-                placeholder="Environmental Information"
-                value={newClaim.environmentalInfo || ''}
-                onChange={(e) => setNewClaim({ ...newClaim, environmentalInfo: e.target.value })}
-              />
-              <Textarea
-                placeholder="Investment Highlights"
-                value={newClaim.investmentHighlights || ''}
-                onChange={(e) => setNewClaim({ ...newClaim, investmentHighlights: e.target.value })}
-              />
-              <Select
-                value={newClaim.contactPreference}
-                onValueChange={(value) => setNewClaim({ ...newClaim, contactPreference: value as Claim['contactPreference'] })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select contact preference" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="phone">Phone</SelectItem>
-                  <SelectItem value="email">Email</SelectItem>
-                  <SelectItem value="in_person">In Person</SelectItem>
-                </SelectContent>
-              </Select>
-              <Textarea
-                placeholder="Description"
-                value={newClaim.description || ''}
-                onChange={(e) => setNewClaim({ ...newClaim, description: e.target.value })}
-              />
             </div>
-          </ScrollArea>
-          <div className="flex justify-end gap-2 mt-6">
-            <Button variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button onClick={handleSubmit}>
-              Add Claim
-            </Button>
+
+            <Input
+              placeholder="Resource Estimate"
+              value={newClaim.resourceEstimate || ''}
+              onChange={(e) => setNewClaim({ ...newClaim, resourceEstimate: e.target.value })}
+            />
+
+            <Input
+              placeholder="Legal Details"
+              value={newClaim.legalDetails || ''}
+              onChange={(e) => setNewClaim({ ...newClaim, legalDetails: e.target.value })}
+            />
+
+            <Input
+              placeholder="Accessibility"
+              value={newClaim.accessibility || ''}
+              onChange={(e) => setNewClaim({ ...newClaim, accessibility: e.target.value })}
+            />
+
+            <Textarea
+              placeholder="Environmental Information"
+              value={newClaim.environmentalInfo || ''}
+              onChange={(e) => setNewClaim({ ...newClaim, environmentalInfo: e.target.value })}
+            />
+
+            <Textarea
+              placeholder="Investment Highlights"
+              value={newClaim.investmentHighlights || ''}
+              onChange={(e) => setNewClaim({ ...newClaim, investmentHighlights: e.target.value })}
+            />
+
+            <Select
+              value={newClaim.contactPreference}
+              onValueChange={(value) => setNewClaim({ ...newClaim, contactPreference: value as Claim['contactPreference'] })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select contact preference" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="phone">Phone</SelectItem>
+                <SelectItem value="email">Email</SelectItem>
+                <SelectItem value="in_person">In Person</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Textarea
+              placeholder="Description"
+              value={newClaim.description || ''}
+              onChange={(e) => setNewClaim({ ...newClaim, description: e.target.value })}
+            />
           </div>
+        </ScrollArea>
+
+        <div className="flex justify-end gap-2 p-6 border-t">
+          <Button variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit}>
+            Add Claim
+          </Button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
