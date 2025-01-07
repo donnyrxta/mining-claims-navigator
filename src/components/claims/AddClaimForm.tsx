@@ -172,11 +172,8 @@ const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) =
               attachments={newClaim.attachments || []}
               claimId={newClaim.id || ''}
               isEditing={true}
-              onFileUpload={onFileUpload ? (files) => {
-                if (newClaim.id) {
-                  onFileUpload(files);
-                }
-              } : undefined}
+              onFileUpload={onFileUpload}
+              onDeleteFile={undefined}
             />
           </div>
         </ScrollArea>
