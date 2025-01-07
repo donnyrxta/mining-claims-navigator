@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useSupabaseStatus } from '@/hooks/useSupabaseStatus';
 import AddClaimForm from '@/components/claims/AddClaimForm';
 import ClaimsList from '@/components/claims/ClaimsList';
+import SearchBar from '@/components/claims/SearchBar';
 
 const initialClaims: Claim[] = [
   {
@@ -54,6 +55,7 @@ const PersonalClaimsDirectory = () => {
   const [filterStatus, setFilterStatus] = useState<'all' | ClaimStatus>('all');
   const [filterOpportunity, setFilterOpportunity] = useState<'all' | OpportunityType>('all');
   const [filterMineral, setFilterMineral] = useState<'all' | MineralType>('all');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const { toast } = useToast();
   const regions = Array.from(new Set(claims.map(claim => claim.region)));
@@ -157,7 +159,14 @@ const PersonalClaimsDirectory = () => {
     const statusMatch = filterStatus === 'all' || claim.status === filterStatus;
     const opportunityMatch = filterOpportunity === 'all' || claim.opportunityType === filterOpportunity;
     const mineralMatch = filterMineral === 'all' || claim.mineral === filterMineral;
-    return typeMatch && regionMatch && statusMatch && opportunityMatch && mineralMatch;
+    
+    const searchMatch = searchTerm === '' || 
+      claim.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      claim.sellerPhone.includes(searchTerm) ||
+      claim.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      claim.sellerName.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return typeMatch && regionMatch && statusMatch && opportunityMatch && mineralMatch && searchMatch;
   });
 
   if (!isConfigured) {
@@ -179,6 +188,13 @@ const PersonalClaimsDirectory = () => {
         <h1 className="text-3xl font-bold text-gray-800 mb-2">Personal Mining Claims Directory</h1>
         <p className="text-gray-600">Manage and track mining claim opportunities</p>
       </header>
+
+      <div className="mb-6">
+        <SearchBar
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+        />
+      </div>
 
       <ClaimFilters
         filterType={filterType}
