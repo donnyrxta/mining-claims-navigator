@@ -66,6 +66,81 @@ export type Database = {
         }
         Relationships: []
       }
+      claims: {
+        Row: {
+          accessibility: string | null
+          asking_price: string | null
+          contact_preference: Database["public"]["Enums"]["contact_preference"]
+          created_at: string
+          description: string | null
+          environmental_info: string | null
+          estimated_value: string
+          id: string
+          investment_highlights: string | null
+          is_favorite: boolean | null
+          legal_details: string | null
+          notes: string | null
+          opportunity_type: Database["public"]["Enums"]["opportunity_type"]
+          partnership_details: string | null
+          potential: Database["public"]["Enums"]["potential_level"]
+          region: string
+          resource_estimate: string | null
+          seller_name: string
+          seller_phone: string
+          status: Database["public"]["Enums"]["claim_status"]
+          type: Database["public"]["Enums"]["claim_type"]
+          user_id: string
+        }
+        Insert: {
+          accessibility?: string | null
+          asking_price?: string | null
+          contact_preference?: Database["public"]["Enums"]["contact_preference"]
+          created_at?: string
+          description?: string | null
+          environmental_info?: string | null
+          estimated_value: string
+          id: string
+          investment_highlights?: string | null
+          is_favorite?: boolean | null
+          legal_details?: string | null
+          notes?: string | null
+          opportunity_type?: Database["public"]["Enums"]["opportunity_type"]
+          partnership_details?: string | null
+          potential: Database["public"]["Enums"]["potential_level"]
+          region: string
+          resource_estimate?: string | null
+          seller_name: string
+          seller_phone: string
+          status?: Database["public"]["Enums"]["claim_status"]
+          type: Database["public"]["Enums"]["claim_type"]
+          user_id: string
+        }
+        Update: {
+          accessibility?: string | null
+          asking_price?: string | null
+          contact_preference?: Database["public"]["Enums"]["contact_preference"]
+          created_at?: string
+          description?: string | null
+          environmental_info?: string | null
+          estimated_value?: string
+          id?: string
+          investment_highlights?: string | null
+          is_favorite?: boolean | null
+          legal_details?: string | null
+          notes?: string | null
+          opportunity_type?: Database["public"]["Enums"]["opportunity_type"]
+          partnership_details?: string | null
+          potential?: Database["public"]["Enums"]["potential_level"]
+          region?: string
+          resource_estimate?: string | null
+          seller_name?: string
+          seller_phone?: string
+          status?: Database["public"]["Enums"]["claim_status"]
+          type?: Database["public"]["Enums"]["claim_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       secondary_minerals: {
         Row: {
           claim_id: string
@@ -101,6 +176,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      claim_status: "available" | "under_negotiation" | "sold"
+      claim_type: "gold" | "chrome"
+      contact_preference: "phone" | "email" | "in_person"
       mineral_type:
         | "gold"
         | "chrome"
@@ -114,6 +192,8 @@ export type Database = {
         | "tantalite"
         | "emerald"
         | "other"
+      opportunity_type: "for_sale" | "seeking_joint_venture" | "not_available"
+      potential_level: "high" | "medium" | "low"
     }
     CompositeTypes: {
       [_ in never]: never

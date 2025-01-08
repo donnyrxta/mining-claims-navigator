@@ -7,6 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ClaimAttachments from './ClaimAttachments';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 type AddClaimFormProps = {
   onSubmit: (claim: Partial<Claim>) => void;
@@ -15,6 +18,7 @@ type AddClaimFormProps = {
 };
 
 const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) => {
+  const { user } = useAuth();
   const [newClaim, setNewClaim] = React.useState<Partial<Claim>>({
     type: 'gold',
     potential: 'medium',
@@ -24,13 +28,37 @@ const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) =
     opportunityType: 'for_sale'
   });
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!user) {
+      toast.error('You must be logged in to add a claim');
+      return;
+    }
+
     if (newClaim.id && newClaim.region && newClaim.type && newClaim.sellerName && newClaim.sellerPhone) {
-      onSubmit(newClaim);
+      try {
+        const { data, error } = await supabase
+          .from('claims')
+          .insert({
+            ...newClaim,
+            user_id: user.id
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        onSubmit(data);
+        toast.success('Claim added successfully');
+      } catch (error) {
+        console.error('Error adding claim:', error);
+        toast.error('Failed to add claim');
+      }
+    } else {
+      toast.error('Please fill in all required fields');
     }
   };
 
-  const handleFileUploadWrapper = (_claimId: string, files: FileList) => {
+  const handleFileUploadWrapper = (claimId: string, files: FileList) => {
     if (onFileUpload) {
       onFileUpload(files);
     }
