@@ -8,6 +8,8 @@ import AddClaimForm from '@/components/claims/AddClaimForm';
 import ClaimsList from '@/components/claims/ClaimsList';
 import SearchBar from '@/components/claims/SearchBar';
 import { useFileManagement } from '@/hooks/useFileManagement';
+import { seedClaims } from '../scripts/seedClaims';
+import { Button } from "@/components/ui/button";
 
 const initialClaims: Claim[] = [
   {
@@ -115,6 +117,15 @@ const PersonalClaimsDirectory = () => {
     }));
   };
 
+  const handleSeedClaims = async () => {
+    const success = await seedClaims();
+    if (success) {
+      toast.success('Claims seeded successfully');
+    } else {
+      toast.error('Failed to seed claims');
+    }
+  };
+
   const regions = Array.from(new Set(claims.map(claim => claim.region)));
 
   const filteredClaims = claims.filter(claim => {
@@ -151,6 +162,13 @@ const PersonalClaimsDirectory = () => {
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">Personal Mining Claims Directory</h1>
         <p className="text-gray-600">Manage and track mining claim opportunities</p>
+        <Button 
+          onClick={handleSeedClaims}
+          className="mt-4"
+          variant="outline"
+        >
+          Seed Sample Claims
+        </Button>
       </header>
 
       <div className="mb-6">
