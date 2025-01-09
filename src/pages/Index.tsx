@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import { Claim, ClaimStatus, OpportunityType } from '../types/claim';
 import { MineralType } from '@/types/minerals';
 import ClaimFilters from '../components/ClaimFilters';
-import { useToast } from "@/components/ui/use-toast";
-import { useSupabaseStatus } from '@/hooks/useSupabaseStatus';
 import AddClaimForm from '@/components/claims/AddClaimForm';
-import ClaimsList from '@/components/claims/ClaimsList';
-import SearchBar from '@/components/claims/SearchBar';
+import ClaimsList from '../components/claims/ClaimsList';
+import SearchBar from '../components/claims/SearchBar';
 import { useFileManagement } from '@/hooks/useFileManagement';
 import { seedClaims } from '../scripts/seedClaims';
 import { Button } from "@/components/ui/button";
+import { toast } from 'sonner';
 
 const initialClaims: Claim[] = [
   {
@@ -59,8 +58,6 @@ const PersonalClaimsDirectory = () => {
   const [filterOpportunity, setFilterOpportunity] = useState<'all' | OpportunityType>('all');
   const [filterMineral, setFilterMineral] = useState<'all' | MineralType>('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const { toast } = useToast();
-  const { handleFileUpload, handleDeleteFile } = useFileManagement();
 
   const handleAddClaim = async (newClaim: Partial<Claim>) => {
     const today = new Date().toISOString().split('T')[0];
@@ -120,9 +117,14 @@ const PersonalClaimsDirectory = () => {
   const handleSeedClaims = async () => {
     const success = await seedClaims();
     if (success) {
-      toast.success('Claims seeded successfully');
+      toast('Claims seeded successfully', {
+        description: 'Sample claims have been added to the database.',
+      });
     } else {
-      toast.error('Failed to seed claims');
+      toast('Failed to seed claims', {
+        description: 'There was an error adding the sample claims.',
+        style: { backgroundColor: 'red', color: 'white' }
+      });
     }
   };
 
@@ -210,7 +212,6 @@ const PersonalClaimsDirectory = () => {
           onCancel={() => setShowAddForm(false)}
           onFileUpload={(files: FileList) => {
             if (files.length > 0) {
-              // Generate a temporary ID for new claims
               const tempId = `temp-${Date.now()}`;
               handleFileUpload(files, tempId);
             }
