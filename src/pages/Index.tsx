@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
 import { Claim, ClaimStatus, OpportunityType } from '../types/claim';
 import { MineralType } from '@/types/minerals';
-import ClaimFilters from '../components/ClaimFilters';
-import AddClaimForm from '@/components/claims/AddClaimForm';
-import ClaimsList from '../components/claims/ClaimsList';
-import SearchBar from '../components/claims/SearchBar';
 import { useFileManagement } from '@/hooks/useFileManagement';
 import { seedClaims } from '../scripts/seedClaims';
-import { Button } from "@/components/ui/button";
 import { toast } from 'sonner';
 import { useSupabaseStatus } from '@/hooks/useSupabaseStatus';
+import SearchAndFilters from '@/components/claims/SearchAndFilters';
+import ClaimsContainer from '@/components/claims/ClaimsContainer';
 
 const initialClaims: Claim[] = [
   {
@@ -116,12 +113,12 @@ const PersonalClaimsDirectory = () => {
   const handleSeedClaims = async () => {
     const success = await seedClaims();
     if (success) {
-      toast('Claims seeded successfully', {
+      toast('Success', {
         description: 'Sample claims have been added to the database.',
       });
     } else {
-      toast('Failed to seed claims', {
-        description: 'There was an error adding the sample claims.',
+      toast('Error', {
+        description: 'Failed to add sample claims.',
         style: { backgroundColor: 'red', color: 'white' }
       });
     }
@@ -163,23 +160,9 @@ const PersonalClaimsDirectory = () => {
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">Personal Mining Claims Directory</h1>
         <p className="text-gray-600">Manage and track mining claim opportunities</p>
-        <Button 
-          onClick={handleSeedClaims}
-          className="mt-4"
-          variant="outline"
-        >
-          Seed Sample Claims
-        </Button>
       </header>
 
-      <div className="mb-6">
-        <SearchBar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-        />
-      </div>
-
-      <ClaimFilters
+      <SearchAndFilters
         filterType={filterType}
         setFilterType={setFilterType}
         filterRegion={filterRegion}
@@ -190,33 +173,26 @@ const PersonalClaimsDirectory = () => {
         setFilterOpportunity={setFilterOpportunity}
         filterMineral={filterMineral}
         setFilterMineral={setFilterMineral}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
         regions={regions}
         onAddNew={() => setShowAddForm(true)}
+        onSeedClaims={handleSeedClaims}
       />
 
-      <ClaimsList
+      <ClaimsContainer
         claims={filteredClaims as Claim[]}
+        showAddForm={showAddForm}
         editingClaim={editingClaim}
         onEdit={setEditingClaim}
         onDelete={handleDeleteClaim}
         onUpdate={handleUpdateClaim}
         onToggleFavorite={handleToggleFavorite}
-        onFileUpload={handleFileUpload}
+        onFileUpload={(id: string, files: FileList) => handleFileUpload(files, id)}
         onDeleteFile={handleDeleteFile}
+        onAddClaim={handleAddClaim}
+        onCancelAdd={() => setShowAddForm(false)}
       />
-
-      {showAddForm && (
-        <AddClaimForm
-          onSubmit={handleAddClaim}
-          onCancel={() => setShowAddForm(false)}
-          onFileUpload={(files: FileList) => {
-            if (files.length > 0) {
-              const tempId = `temp-${Date.now()}`;
-              handleFileUpload(files, tempId);
-            }
-          }}
-        />
-      )}
     </div>
   );
 };
