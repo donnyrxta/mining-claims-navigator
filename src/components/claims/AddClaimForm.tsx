@@ -62,6 +62,10 @@ const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) =
   const handleFileUploadWrapper = (files: FileList) => {
     if (onFileUpload && newClaim.id) {
       onFileUpload(newClaim.id, files);
+    } else if (onFileUpload) {
+      // Generate a temporary ID if none exists
+      const tempId = `temp-${Date.now()}`;
+      onFileUpload(tempId, files);
     }
   };
 
