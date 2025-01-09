@@ -13,7 +13,8 @@ const claims = [
     status: 'available',
     opportunity_type: 'seeking_joint_venture',
     partnership_details: 'Security deposit plus a 70/30 share split',
-    user_id: 'default-user-id'
+    user_id: 'default-user-id',
+    created_at: new Date().toISOString()
   },
   {
     id: 'C1',
@@ -27,7 +28,8 @@ const claims = [
     status: 'available',
     opportunity_type: 'for_sale',
     asking_price: '375,000 USD',
-    user_id: 'default-user-id'
+    user_id: 'default-user-id',
+    created_at: new Date().toISOString()
   }
 ];
 

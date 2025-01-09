@@ -38,7 +38,19 @@ const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) =
           .from('claims')
           .insert({
             ...newClaim,
-            user_id: userId
+            user_id: userId,
+            created_at: new Date().toISOString(),
+            asking_price: newClaim.askingPrice,
+            seller_name: newClaim.sellerName,
+            seller_phone: newClaim.sellerPhone,
+            estimated_value: newClaim.estimatedValue,
+            resource_estimate: newClaim.resourceEstimate,
+            legal_details: newClaim.legalDetails,
+            environmental_info: newClaim.environmentalInfo,
+            investment_highlights: newClaim.investmentHighlights,
+            contact_preference: newClaim.contactPreference,
+            partnership_details: newClaim.partnershipDetails,
+            is_favorite: false
           })
           .select()
           .single();
@@ -66,23 +78,24 @@ const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) =
     <Dialog open={true} onOpenChange={() => onCancel()}>
       <DialogContent className="max-w-2xl max-h-[90vh] p-0">
         <DialogHeader className="px-6 pt-6">
-          <DialogTitle className="text-xl font-semibold">Add New Claim</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">Add New Mining Claim</DialogTitle>
         </DialogHeader>
         
         <ScrollArea className="px-6 pb-6 max-h-[calc(90vh-8rem)]">
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
-                placeholder="Claim ID (e.g., G1, C1)"
+                placeholder="Claim ID (required)"
                 value={newClaim.id || ''}
                 onChange={(e) => setNewClaim({ ...newClaim, id: e.target.value })}
+                className="border-2 focus:ring-2 focus:ring-blue-500"
               />
               
               <Select
                 value={newClaim.type}
                 onValueChange={(value) => setNewClaim({ ...newClaim, type: value as 'gold' | 'chrome' })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="border-2">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -94,15 +107,17 @@ const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) =
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
-                placeholder="Region"
+                placeholder="Region (required)"
                 value={newClaim.region || ''}
                 onChange={(e) => setNewClaim({ ...newClaim, region: e.target.value })}
+                className="border-2 focus:ring-2 focus:ring-blue-500"
               />
               
               <Input
-                placeholder="Seller Name"
+                placeholder="Seller Name (required)"
                 value={newClaim.sellerName || ''}
                 onChange={(e) => setNewClaim({ ...newClaim, sellerName: e.target.value })}
+                className="border-2 focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -207,6 +222,7 @@ const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) =
               onFileUpload={handleFileUploadWrapper}
               onDeleteFile={undefined}
             />
+
           </div>
         </ScrollArea>
 
@@ -214,7 +230,10 @@ const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) =
           <Button variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>
+          <Button 
+            onClick={handleSubmit}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
             Add Claim
           </Button>
         </div>
