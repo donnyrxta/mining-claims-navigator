@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { supabase } from '@/lib/supabase';
 import { Claim } from '@/types/claim';
 import ClaimAttachments from './ClaimAttachments';
-import { MapPin, User, Phone, DollarSign, Scale, Book, Trees, TrendingUp, Mail, Clock, Handshake } from 'lucide-react';
+import ClaimBasicInfo from './form/ClaimBasicInfo';
+import ClaimContactInfo from './form/ClaimContactInfo';
+import ClaimDetailsInfo from './form/ClaimDetailsInfo';
 
 type AddClaimFormProps = {
   onSubmit: (claim: Partial<Claim>) => void;
@@ -59,13 +58,13 @@ const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) =
     }
   };
 
-  const handleFileUploadWrapper = (files: FileList) => {
-    if (onFileUpload && newClaim.id) {
-      onFileUpload(newClaim.id, files);
-    } else if (onFileUpload) {
-      // Generate a temporary ID if none exists
-      const tempId = `temp-${Date.now()}`;
-      onFileUpload(tempId, files);
+  const handleChange = (updates: Partial<Claim>) => {
+    setNewClaim(prev => ({ ...prev, ...updates }));
+  };
+
+  const handleFileUploadWrapper = (claimId: string, files: FileList) => {
+    if (onFileUpload) {
+      onFileUpload(claimId, files);
     }
   };
 
@@ -79,191 +78,12 @@ const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) =
         
         <ScrollArea className="px-6 pb-6 max-h-[calc(90vh-8rem)]">
           <div className="space-y-6 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-blue-500" />
-                  Claim ID
-                </label>
-                <Input
-                  placeholder="Enter claim ID (required)"
-                  value={newClaim.id || ''}
-                  onChange={(e) => setNewClaim({ ...newClaim, id: e.target.value })}
-                  className="border-2 focus:ring-2 focus:ring-blue-500 transition-all"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Type</label>
-                <Select
-                  value={newClaim.type}
-                  onValueChange={(value) => setNewClaim({ ...newClaim, type: value as 'gold' | 'chrome' })}
-                >
-                  <SelectTrigger className="border-2 hover:border-blue-400 transition-all">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="gold">Gold</SelectItem>
-                    <SelectItem value="chrome">Chrome</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-blue-500" />
-                  Region
-                </label>
-                <Input
-                  placeholder="Enter region (required)"
-                  value={newClaim.region || ''}
-                  onChange={(e) => setNewClaim({ ...newClaim, region: e.target.value })}
-                  className="border-2 focus:ring-2 focus:ring-blue-500 transition-all"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <User className="w-4 h-4 text-blue-500" />
-                  Seller Name
-                </label>
-                <Input
-                  placeholder="Enter seller name (required)"
-                  value={newClaim.sellerName || ''}
-                  onChange={(e) => setNewClaim({ ...newClaim, sellerName: e.target.value })}
-                  className="border-2 focus:ring-2 focus:ring-blue-500 transition-all"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-blue-500" />
-                  Phone Number
-                </label>
-                <Input
-                  placeholder="Enter phone number"
-                  value={newClaim.sellerPhone || ''}
-                  onChange={(e) => setNewClaim({ ...newClaim, sellerPhone: e.target.value })}
-                  className="border-2 focus:ring-2 focus:ring-blue-500 transition-all"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-blue-500" />
-                  Estimated Value
-                </label>
-                <Input
-                  placeholder="Enter estimated value"
-                  value={newClaim.estimatedValue || ''}
-                  onChange={(e) => setNewClaim({ ...newClaim, estimatedValue: e.target.value })}
-                  className="border-2 focus:ring-2 focus:ring-blue-500 transition-all"
-                />
-              </div>
-            </div>
-
+            <ClaimBasicInfo claim={newClaim} onChange={handleChange} />
+            <ClaimContactInfo claim={newClaim} onChange={handleChange} />
+            <ClaimDetailsInfo claim={newClaim} onChange={handleChange} />
+            
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <Scale className="w-4 h-4 text-blue-500" />
-                Resource Estimate
-              </label>
-              <Textarea
-                placeholder="Enter resource estimate details"
-                value={newClaim.resourceEstimate || ''}
-                onChange={(e) => setNewClaim({ ...newClaim, resourceEstimate: e.target.value })}
-                className="min-h-[100px] border-2 focus:ring-2 focus:ring-blue-500 transition-all"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <Book className="w-4 h-4 text-blue-500" />
-                Legal Details
-              </label>
-              <Textarea
-                placeholder="Enter legal details"
-                value={newClaim.legalDetails || ''}
-                onChange={(e) => setNewClaim({ ...newClaim, legalDetails: e.target.value })}
-                className="min-h-[100px] border-2 focus:ring-2 focus:ring-blue-500 transition-all"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <Trees className="w-4 h-4 text-blue-500" />
-                Environmental Information
-              </label>
-              <Textarea
-                placeholder="Enter environmental details"
-                value={newClaim.environmentalInfo || ''}
-                onChange={(e) => setNewClaim({ ...newClaim, environmentalInfo: e.target.value })}
-                className="min-h-[100px] border-2 focus:ring-2 focus:ring-blue-500 transition-all"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-blue-500" />
-                Investment Highlights
-              </label>
-              <Textarea
-                placeholder="Enter investment highlights"
-                value={newClaim.investmentHighlights || ''}
-                onChange={(e) => setNewClaim({ ...newClaim, investmentHighlights: e.target.value })}
-                className="min-h-[100px] border-2 focus:ring-2 focus:ring-blue-500 transition-all"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-blue-500" />
-                  Contact Preference
-                </label>
-                <Select
-                  value={newClaim.contactPreference}
-                  onValueChange={(value) => setNewClaim({ ...newClaim, contactPreference: value as 'email' | 'phone' })}
-                >
-                  <SelectTrigger className="border-2 hover:border-blue-400 transition-all">
-                    <SelectValue placeholder="Select contact preference" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="email">Email</SelectItem>
-                    <SelectItem value="phone">Phone</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Handshake className="w-4 h-4 text-blue-500" />
-                  Opportunity Type
-                </label>
-                <Select
-                  value={newClaim.opportunityType}
-                  onValueChange={(value) => setNewClaim({ ...newClaim, opportunityType: value as 'for_sale' | 'seeking_joint_venture' | 'not_available' })}
-                >
-                  <SelectTrigger className="border-2 hover:border-blue-400 transition-all">
-                    <SelectValue placeholder="Select opportunity type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="for_sale">For Sale</SelectItem>
-                    <SelectItem value="seeking_joint_venture">Seeking Joint Venture</SelectItem>
-                    <SelectItem value="not_available">Not Available</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <Clock className="w-4 h-4 text-blue-500" />
-                Attachments
-              </label>
+              <label className="text-sm font-medium text-gray-700">Attachments</label>
               <ClaimAttachments
                 attachments={[]}
                 claimId={newClaim.id || ''}
