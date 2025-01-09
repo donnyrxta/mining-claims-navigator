@@ -9,12 +9,12 @@ import { toast } from "sonner";
 import { supabase } from '@/lib/supabase';
 import { Claim } from '@/types/claim';
 import ClaimAttachments from './ClaimAttachments';
-import { MapPin, User, Phone, DollarSign, Scale, Book, Tree, TrendingUp, Mail, Clock, Handshake } from 'lucide-react';
+import { MapPin, User, Phone, DollarSign, Scale, Book, Trees, TrendingUp, Mail, Clock, Handshake } from 'lucide-react';
 
 type AddClaimFormProps = {
   onSubmit: (claim: Partial<Claim>) => void;
   onCancel: () => void;
-  onFileUpload?: (files: FileList) => void;
+  onFileUpload?: (claimId: string, files: FileList) => void;
 };
 
 const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) => {
@@ -60,8 +60,8 @@ const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) =
   };
 
   const handleFileUploadWrapper = (files: FileList) => {
-    if (onFileUpload) {
-      onFileUpload(files);
+    if (onFileUpload && newClaim.id) {
+      onFileUpload(newClaim.id, files);
     }
   };
 
@@ -190,7 +190,7 @@ const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) =
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <Tree className="w-4 h-4 text-blue-500" />
+                <Trees className="w-4 h-4 text-blue-500" />
                 Environmental Information
               </label>
               <Textarea
@@ -262,7 +262,7 @@ const AddClaimForm = ({ onSubmit, onCancel, onFileUpload }: AddClaimFormProps) =
               </label>
               <ClaimAttachments
                 attachments={[]}
-                claimId=""
+                claimId={newClaim.id || ''}
                 isEditing={true}
                 onFileUpload={handleFileUploadWrapper}
                 onDeleteFile={undefined}
