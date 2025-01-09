@@ -9,6 +9,7 @@ import { useFileManagement } from '@/hooks/useFileManagement';
 import { seedClaims } from '../scripts/seedClaims';
 import { Button } from "@/components/ui/button";
 import { toast } from 'sonner';
+import { useSupabaseStatus } from '@/hooks/useSupabaseStatus';
 
 const initialClaims: Claim[] = [
   {
@@ -58,6 +59,7 @@ const PersonalClaimsDirectory = () => {
   const [filterOpportunity, setFilterOpportunity] = useState<'all' | OpportunityType>('all');
   const [filterMineral, setFilterMineral] = useState<'all' | MineralType>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const { handleFileUpload, handleDeleteFile } = useFileManagement();
 
   const handleAddClaim = async (newClaim: Partial<Claim>) => {
     const today = new Date().toISOString().split('T')[0];
@@ -69,8 +71,7 @@ const PersonalClaimsDirectory = () => {
     
     setClaims([...claims, claim]);
     setShowAddForm(false);
-    toast({
-      title: "Success",
+    toast('Success', {
       description: "New claim added successfully",
     });
   };
@@ -87,18 +88,16 @@ const PersonalClaimsDirectory = () => {
       return claim;
     }));
     setEditingClaim(null);
-    toast({
-      title: "Success",
+    toast('Success', {
       description: "Claim updated successfully",
     });
   };
 
   const handleDeleteClaim = (id: string) => {
     setClaims(claims.filter(claim => claim.id !== id));
-    toast({
-      title: "Success",
+    toast('Success', {
       description: "Claim deleted successfully",
-      variant: "destructive"
+      style: { backgroundColor: 'red', color: 'white' }
     });
   };
 
@@ -202,7 +201,7 @@ const PersonalClaimsDirectory = () => {
         onDelete={handleDeleteClaim}
         onUpdate={handleUpdateClaim}
         onToggleFavorite={handleToggleFavorite}
-        onFileUpload={(id: string, files: FileList) => handleFileUpload(files, id)}
+        onFileUpload={handleFileUpload}
         onDeleteFile={handleDeleteFile}
       />
 
