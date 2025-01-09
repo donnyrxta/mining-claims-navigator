@@ -47,12 +47,7 @@ const ClaimsContainer = ({
         <AddClaimForm
           onSubmit={onAddClaim}
           onCancel={onCancelAdd}
-          onFileUpload={(files: FileList) => {
-            if (files.length > 0) {
-              const tempId = `temp-${Date.now()}`;
-              onFileUpload(tempId, files);
-            }
-          }}
+          onFileUpload={onFileUpload}
         />
       )}
     </>
