@@ -113,7 +113,7 @@ export type Database = {
           seller_phone: string
           status?: Database["public"]["Enums"]["claim_status"]
           type: Database["public"]["Enums"]["claim_type"]
-          user_id: string
+          user_id?: string
         }
         Update: {
           accessibility?: string | null
